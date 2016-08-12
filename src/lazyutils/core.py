@@ -50,6 +50,42 @@ class delegate_ro(delegate_to):
         super().__init__(attribute, readonly=True)
 
 
+class alias(property):
+    """
+    An alias to an attribute
+
+    Args:
+        name (str):
+            Name of aliased attribute.
+        readonly (bool):
+            If True, makes the alias read only.
+    """
+
+    def __init__(self, name, readonly=False):
+        self.name = name
+        self.readonly = readonly
+
+        def fget(obj):
+            return getattr(obj, name)
+
+        def fset(obj, value):
+            setattr(obj, name, value)
+
+        if self.readonly:
+            super(alias, self).__init__(fget)
+        else:
+            super(alias, self).__init__(fget, fset)
+
+
+class readonly(alias):
+    """
+    A read-only alias to an attribute.
+    """
+
+    def __init__(self, name):
+        super(readonly, self).__init__(name, readonly=True)
+
+
 class lazy:
     """
     Decorator that defines an attribute that is initialized as first usage

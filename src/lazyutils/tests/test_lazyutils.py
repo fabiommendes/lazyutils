@@ -1,12 +1,14 @@
 import pytest
-from lazyutils import lazy, delegate_to, delegate_ro
+
+from lazyutils import lazy, delegate_to, delegate_ro, readonly, alias
+
 
 #
 # Lazy attribute
 #
 @pytest.fixture
 def A():
-    class A:
+    class A(object):
         L = []
 
         @lazy
@@ -45,7 +47,7 @@ def test_lazy_works_with_lambdas():
 #
 @pytest.fixture
 def B():
-    class B:
+    class B(object):
         x = delegate_to('data')
         y = delegate_to('data', readonly=True)
         z = delegate_ro('data')
@@ -63,6 +65,7 @@ def data_cls():
             self.x = x
             self.y = y
             self.z = z
+
     return Data
 
 
@@ -98,3 +101,38 @@ def test_delegate_ro_cannot_write(B, data_cls):
 
     assert b.y == 2
     assert b.z == 3
+
+
+#
+# Aliases
+#
+@pytest.fixture
+def C():
+    class C(object):
+        x = 1
+        y = alias('x')
+        z = readonly('y')
+
+    return C
+
+
+def test_alias_read(C):
+    obj = C()
+    assert obj.x == obj.y
+    assert obj.y == obj.z
+
+
+def test_alias_write(C):
+    obj = C()
+    obj.y = 42
+    assert obj.x == obj.y
+    assert obj.x == 42
+    assert obj.y == 42
+
+
+def test_readonly_cannot_write(C):
+    obj = C()
+    with pytest.raises(AttributeError):
+        obj.z = 42
+
+    assert obj.z == obj.x

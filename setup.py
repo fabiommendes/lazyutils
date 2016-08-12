@@ -3,7 +3,7 @@
 # This file were created by Python Boilerplate. Use boilerplate to start simple
 # usable and best-practices compliant Python projects.
 #
-# Learn more about it at: http://github.com/fabiommendes/boilerplate/
+# Learn more about it at: http://github.com/fabiommendes/python-boilerplate/
 #
 
 import os
@@ -33,12 +33,11 @@ setup(
     description='Lazy accessor and other tools for deferred evaluation.',
     long_description=open('README.rst').read(),
 
-    # Classifiers (see https://pypi.python.org/pypi?%3Aaction=list_classifiers)
+    # Classifiers
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Operating System :: POSIX',
         'Programming Language :: Python',
         'Topic :: Software Development :: Libraries',
     ],
