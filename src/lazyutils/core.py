@@ -163,3 +163,15 @@ class lazy_shared(lazy):
         except AttributeError:
             self.state = self.function(obj)
             return self.state
+
+
+class lazy_classattribute(lazy):
+    """
+    A lazy accessor tied to a class instead of specific instances.
+    """
+
+    def __get__(self, obj, cls=None):
+        result = self.function(obj)
+        setattr(cls, self.__name__, result)
+        return result
+

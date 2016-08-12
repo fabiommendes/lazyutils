@@ -1,6 +1,6 @@
 import pytest
 
-from lazyutils import lazy, lazy_shared, delegate_to, delegate_ro, readonly, alias
+from lazyutils import lazy, lazy_shared, lazy_classattribute, delegate_to, delegate_ro, readonly, alias
 
 
 #
@@ -51,6 +51,20 @@ def test_shared_lazy_accessor(A):
     b = A()
     assert a.c is b.c
 
+
+def test_lazy_class_attribute():
+    class A(object):
+        @lazy_classattribute
+        def b(self):
+            return 1
+
+        @lazy_classattribute
+        def c(self):
+            return 2
+    a = A()
+    assert a.b == 1
+    assert A.c == 2
+    assert a.c == 2
 
 #
 # Delegate to
