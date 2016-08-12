@@ -1,17 +1,35 @@
-class delegate_to:
+class delegate_to(object):
     """
-    Property that delegates attribute access to a inner variable.
+    Delegate access to an inner variable.
+
+    A delegate is an alias for an attribute of the same name that lives in an
+    inner object of a class.
+
+    Example:
+        Consider the very simple example::
+
+            class Foo(object):
+                data = "foo-bar"
+                upper = delegate_to('data')
+
+            x = Foo()
+
+        ``x.upper()`` is now an alias for ``x.data.upper()``.
 
     Args:
         attribute:
             Name of the inner variable that receives delegation.
         readonly:
             If true, makes the the delegate readonly.
+        inner_name:
+            The name of the inner variable. Can be ommited if the name is the
+            same of the attribute.
     """
 
-    def __init__(self, attribute, readonly=False):
+    def __init__(self, attribute, readonly=False, inner_name=None):
         self.attribute = attribute
         self.readonly = readonly
+        self.inner_name = inner_name
 
     def __get__(self, obj, cls=None):
         if obj is None:
@@ -50,9 +68,9 @@ class delegate_ro(delegate_to):
         super().__init__(attribute, readonly=True)
 
 
-class alias(property):
+class alias(object):
     """
-    An alias to an attribute
+    An alias to an attribute.
 
     Args:
         name (str):
@@ -61,20 +79,20 @@ class alias(property):
             If True, makes the alias read only.
     """
 
-    def __init__(self, name, readonly=False):
-        self.name = name
+    def __init__(self, attribute, readonly=False):
+        self.attribute = attribute
         self.readonly = readonly
 
-        def fget(obj):
-            return getattr(obj, name)
+    def __get__(self, obj, cls=None):
+        if obj is not None:
+            return getattr(obj, self.attribute)
+        return self
 
-        def fset(obj, value):
-            setattr(obj, name, value)
-
+    def __set__(self, obj, value):
         if self.readonly:
-            super(alias, self).__init__(fget)
-        else:
-            super(alias, self).__init__(fget, fset)
+            raise AttributeError(self.attribute)
+
+        setattr(obj, self.attribute, value)
 
 
 class readonly(alias):
@@ -82,8 +100,8 @@ class readonly(alias):
     A read-only alias to an attribute.
     """
 
-    def __init__(self, name):
-        super(readonly, self).__init__(name, readonly=True)
+    def __init__(self, attribute):
+        super(readonly, self).__init__(attribute, readonly=True)
 
 
 class lazy:
@@ -95,15 +113,15 @@ class lazy:
     not override the *setter* and *deleter* methods.
     """
 
-    def __init__(self, method):
-        self.method = method
-        self.__name__ = getattr(method, '__name__', None)
+    def __init__(self, function):
+        self.function = function
+        self.__name__ = getattr(function, '__name__', None)
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj, cls=None):
         if obj is None:
             return self
 
-        result = self.method(obj)
+        result = self.function(obj)
         try:
             attr_name = self._attr
         except AttributeError:
@@ -122,9 +140,26 @@ class lazy:
             pass
 
         for attr in dir(cls):
-            method = getattr(cls, attr, None)
-            if method is self:
+            value = getattr(cls, attr, None)
+            if value is self:
                 self._attr = attr
                 return attr
 
         raise TypeError('lazy accessor not found in %s' % cls.__name__)
+
+
+class lazy_shared(lazy):
+    """
+    A lazy accessor whose state is computed at first access and is shared
+    between all instances.
+    """
+
+    def __get__(self, obj, cls=None):
+        if obj is None:
+            return self
+
+        try:
+            return self.state
+        except AttributeError:
+            self.state = self.function(obj)
+            return self.state

@@ -1,6 +1,6 @@
 import pytest
 
-from lazyutils import lazy, delegate_to, delegate_ro, readonly, alias
+from lazyutils import lazy, lazy_shared, delegate_to, delegate_ro, readonly, alias
 
 
 #
@@ -15,6 +15,10 @@ def A():
         def b(self):
             self.L.append(1)
             return 2
+
+        @lazy_shared
+        def c(self):
+            return 3.0
 
     return A
 
@@ -40,6 +44,12 @@ def test_lazy_works_with_lambdas():
 
     a = A()
     assert a.x == 42
+
+
+def test_shared_lazy_accessor(A):
+    a = A()
+    b = A()
+    assert a.c is b.c
 
 
 #
