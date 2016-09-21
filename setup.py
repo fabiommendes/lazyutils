@@ -11,25 +11,27 @@ from setuptools import setup, find_packages
 
 
 # Meta information
-name = 'lazyutils'
-project = 'lazyutils'
-author = 'Fábio Macêdo Mendes'
 version = open('VERSION').read().strip()
 dirname = os.path.dirname(__file__)
 
 
 # Save version and author to __meta__.py
-with open(os.path.join(dirname, 'src', project, '__meta__.py'), 'w') as F:
-    F.write('__version__ = %r\n__author__ = %r\n' % (version, author))
+path = os.path.join(dirname, 'src', 'lazyutils', '__meta__.py')
+data = '''# Automatically created. Please do not edit.
+__version__ = u'%s'
+__author__ = u'F\\xe1bio Mac\\xeado Mendes'
+''' % version
+with open(path, 'wb') as F:
+    F.write(data.encode())
 
 
 setup(
     # Basic info
-    name=name,
+    name='lazyutils',
     version=version,
-    author=author,
+    author='Fábio Macêdo Mendes',
     author_email='fabiomacedomendes@gmail.com',
-    url='',
+    url='http://github.com/fabiommendes/lazyutils/',
     description='Lazy accessor and other tools for deferred evaluation.',
     long_description=open('README.rst').read(),
 
@@ -47,11 +49,10 @@ setup(
     packages=find_packages('src'),
     install_requires=[],
     extras_require={
-        'testing': ['pytest'],
+        'dev': ['python-boilerplate'],
     },
 
     # Other configurations
     zip_safe=False,
     platforms='any',
-    test_suite='%s.test.test_%s' % (name, name),
 )

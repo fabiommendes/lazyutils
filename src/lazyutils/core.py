@@ -73,7 +73,7 @@ class alias(object):
     An alias to an attribute.
 
     Args:
-        name (str):
+        attribute (str):
             Name of aliased attribute.
         readonly (bool):
             If True, makes the alias read only.
@@ -174,4 +174,3 @@ class lazy_classattribute(lazy):
         result = self.function(obj)
         setattr(cls, self.__name__, result)
         return result
-

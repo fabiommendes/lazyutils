@@ -6,6 +6,10 @@ Lazy attribute
 
 The lazy decorator defines an attribute with deferred initialization::
 
+.. code::python
+    import math
+    from lazyutils import lazy
+
     class Vec:
         def __init__(self, x, y):
             self.x, self.y = x, y
@@ -13,7 +17,7 @@ The lazy decorator defines an attribute with deferred initialization::
         @lazy
         def magnitude(self):
             print('computing...')
-            return math.sqrt(x**2 + y**2)
+            return math.sqrt(self.x**2 + self.y**2)
 
 Now the ``magnitude`` attribute is initialized and cached upon first use:
 
@@ -41,11 +45,14 @@ Delegation
 The delegate_to() function delegates some attribute to an attribute during the
 class definition::
 
+.. code::python
+    from lazyutils import delegate_to
+    
     class Arrow:
         magnitude = delegate_to('vector')
 
         def __init__(self, vector, start=Vec(0, 0)):
-            self.vector = radius
+            self.vector = vector
             self.start = start
 
 Now, the ``.magnitude`` attribute of ``Arrow`` instances is delegated to
@@ -56,7 +63,7 @@ handles attributes and methods with no distinction.
 
 >>> a = Arrow(Vec(6, 8))
 >>> a.magnitude
-magnitude...
+computing...
 10.0
 
 
